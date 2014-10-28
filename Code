@@ -1,0 +1,102 @@
+/*
+Code written by Aidan Maddox and John Becker
+October 28, 2014
+*/
+
+#include <Adafruit_NeoPixel.h>
+#include <Servo.h>     //include these libraries
+
+#define PIN 6     //pin for the light
+
+Servo servo1;
+Servo servo2;     //servos
+int pos1 = 0;
+int pos2 = 180;     //starting position for the servos
+
+int buttonPin = 3;     //input pin for the buton
+int ledPin=12;     //pin for the test light
+int buttonPin2 = 4;     //button we are not using
+
+int lightPin= 0;     //for the light sensor
+int lightValue;
+int buttonState=0;     //evaluates if the button is pressed or not
+
+//int maxBrigthness = 140;
+//int minBrightness = 50;
+//int fadeSpeed = 15;
+
+float R;     //these 6 are for determning the colors
+int r;
+float G;     //floats are for generating random numbers
+int g;
+float B;
+int b;     //ints are for uning for color with the lights, they can only take ints
+
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(5, PIN, NEO_GRB + NEO_KHZ800);     //new neo pixel strip--lights
+
+void setup(){
+  Serial.begin(9600);
+   servo1.attach(9);     //attaching data pins to the servos
+  servo2.attach(10);
+  pinMode(buttonPin,INPUT);     //input for the button, output for the test light
+  pinMode(ledPin,OUTPUT);
+strip.begin();     //begin showing the strip
+  strip.show();     //show the strip
+    uint32_t magenta = strip.Color(255, 0, 255);     //defines colors
+    uint32_t green = strip.Color(255, 0, 0);
+
+
+}
+void loop(){
+lightValue=analogRead(lightPin);     //reads how bright it is
+Serial.println(lightValue);     //prints the light value so we can see what it is
+delay(20);     //waits 20 ms
+if(lightValue<400){
+R = random(0,255);     //creates random values for the color floats
+G = random(0,255);
+B = random(0,255);
+if(R>G && R>B){     //if red is the highest, set the color ints to display red
+  r = 255;
+  g = 0;
+  b = 0;
+}
+if(G>R && G>B){     //if green is the highest, set the color ints to display green
+  r = 0;
+  g = 255;
+  b = 0;
+}
+if(B>G && B>R){     //if blue is the highest, set the color ints to display blue
+  r = 0;
+  g = 0;
+  b = 255;
+}
+strip.setPixelColor(0,r,g,b);     //display the colors on all the lights
+strip.setPixelColor(1,r,g,b);
+strip.setPixelColor(2,r,g,b);
+strip.setPixelColor(3,r,g,b);
+strip.setPixelColor(4,r,g,b);     //still displaying colors
+strip.show();
+}
+if(lightValue>400){     //if it is bright enough, turn off the lights
+  strip.setPixelColor(0,0,0,0);
+strip.setPixelColor(1,0,0,0);
+strip.setPixelColor(2,0,0,0);     //sets all 5 lights to off
+strip.setPixelColor(3,0,0,0);
+strip.setPixelColor(4,0,0,0);
+strip.show();
+}
+
+   buttonState = digitalRead(buttonPin);     //reads the button value
+ if(buttonState == HIGH){     //if it is pressed
+   digitalWrite(ledPin,HIGH);     //turn on the test light, open the lenses
+  servo1.write(5);
+  servo2.write(175);
+ }
+ else{     //else
+   digitalWrite(ledPin,LOW);
+   servo1.write(178);     //turn off the test light, close the lenses
+   servo2.write(2);
+}
+
+}
